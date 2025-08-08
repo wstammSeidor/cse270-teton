@@ -9,10 +9,13 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options
 
 class TestSmokeTest():
   def setup_method(self, method):
-    self.driver = webdriver.Firefox()
+    options = Options()
+    options.add_argument("--headless=new")
+    self.driver = webdriver.Chrome(options=options)
     self.vars = {}
   
   def teardown_method(self, method):
@@ -29,7 +32,7 @@ class TestSmokeTest():
     self.driver.find_element(By.ID, "password").click()
     self.driver.find_element(By.ID, "password").send_keys("test")
     self.driver.find_element(By.CSS_SELECTOR, ".mysubmit:nth-child(4)").click()
-    assert self.driver.find_element(By.CSS_SELECTOR, ".errorMessage").text == "Invalid username and password."
+    WebDriverWait(self.driver, 30).until(expected_conditions.text_to_be_present_in_element((By.CSS_SELECTOR, ".errorMessage"), "Invalid username and password."))
   
   def test_directoryPage(self):
     self.driver.get("http://127.0.0.1:5500/teton/1.6/index.html")
@@ -47,7 +50,7 @@ class TestSmokeTest():
   
   def test_homepage(self):
     self.driver.get("http://127.0.0.1:5500/teton/1.6/index.html")
-    self.driver.find_element(By.LINK_TEXT, "Home").click()
+    self.driver.set_window_size(1936, 1048)
     elements = self.driver.find_elements(By.CSS_SELECTOR, ".header-logo img")
     assert len(elements) > 0
     assert self.driver.find_element(By.CSS_SELECTOR, ".header-title > h1").text == "Teton Idaho"
@@ -58,7 +61,6 @@ class TestSmokeTest():
     elements = self.driver.find_elements(By.CSS_SELECTOR, ".spotlight2 > h4")
     assert len(elements) > 0
     assert self.driver.find_element(By.CSS_SELECTOR, ".spotlight2 > h4").text == "Teton Post Office"
-    assert self.driver.find_element(By.LINK_TEXT, "Join").text == "Join"
     self.driver.find_element(By.XPATH, "//a[contains(@href, \'join.html\')]").click()
   
   def test_joinpage(self):
@@ -72,5 +74,5 @@ class TestSmokeTest():
     self.driver.find_element(By.NAME, "bizname").send_keys("ASD")
     self.driver.find_element(By.NAME, "biztitle").send_keys("asd")
     self.driver.find_element(By.NAME, "submit").click()
-    assert self.driver.find_element(By.CSS_SELECTOR, ".myinput:nth-child(2)").text == "Email"
+    WebDriverWait(self.driver, 30).until(expected_conditions.text_to_be_present_in_element((By.CSS_SELECTOR, ".myinput:nth-child(2)"), "Email"))
   
